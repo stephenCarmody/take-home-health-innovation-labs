@@ -1,0 +1,18 @@
+
+# python
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# notebooks
+*.ipynb
+
+# data
+*.csv
+*.txt
+
+# logs
+*.log
+
+# instructions
+instructions.md
