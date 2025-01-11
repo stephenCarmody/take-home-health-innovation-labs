@@ -1,6 +1,6 @@
-FROM python:3.11
+FROM python:3.11-slim
 
-RUN apt-get -y update; apt-get -y install curl
+RUN apt-get -y update && apt-get -y install curl
 
 ARG poetry_version=1.8.4
 

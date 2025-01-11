@@ -1,14 +1,10 @@
+export PYTHONPATH := "."
+
 train:
     poetry run python training/training.py
 
 serve:
     poetry run python serving/app.py
-
-docker-build:
-    docker build -t training-app -f training/Dockerfile .
-
-docker-train:
-    docker run training-app
 
 lint-check:
     poetry run isort --check-only --diff serving/ training/
@@ -26,3 +22,18 @@ test-serving:
 
 test-training:
     poetry run pytest training/tests/ -v
+
+docker-build-training:
+    docker build -t training-app -f training/Dockerfile .
+
+docker-train:
+    docker run training-app
+
+docker-build-serving:
+    docker build -t serving-app -f serving/Dockerfile .
+
+docker-build-serving-lambda:
+    docker build -t serving-app-lambda -f serving/Dockerfile.lambda .
+
+docker-serve:
+    docker run -p 8000:8000 serving-app

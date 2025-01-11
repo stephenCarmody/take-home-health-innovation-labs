@@ -1,0 +1,11 @@
+FROM public.ecr.aws/lambda/python:3.11
+
+COPY pyproject.toml poetry.lock ${LAMBDA_TASK_ROOT}/
+
+RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+COPY . ${LAMBDA_TASK_ROOT}/
+
+CMD [ "app.handler" ]
