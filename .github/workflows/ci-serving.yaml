@@ -12,7 +12,7 @@ on:
 
 jobs:
   ci:
-    uses: ./.github/workflows/templates/ci.yaml
+    uses: ./.github/workflows/template-ci.yaml
     with:
       working-directory: serving
       ecr-repository: take-home-health-innovation-labs-serving
