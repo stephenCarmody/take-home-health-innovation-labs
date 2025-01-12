@@ -16,3 +16,12 @@ __pycache__/
 
 # instructions
 instructions.md
+
+# env
+.env
+
+# infrastructure
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
