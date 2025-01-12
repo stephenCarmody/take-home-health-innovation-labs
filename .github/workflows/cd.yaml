@@ -7,6 +7,7 @@ on:
 env:
   AWS_REGION: eu-west-1
   AWS_ACCOUNT_ID: "031421732210"
+  ECR_REPOSITORY: "take-home-health-innovation-labs-serving"
 
 jobs:
   deploy:
@@ -19,8 +20,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get latest ECR image
+        id: get-latest-ecr-image
+        run: |
+          LATEST_SHA=$(aws ecr describe-images \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
+            --filter tagStatus=TAGGED \
+            --output text)
+          echo "Latest SHA: $LATEST_SHA"
+          echo "image_sha=$LATEST_SHA" >> "$GITHUB_OUTPUT"
+
       - name: Update Lambda Function
         run: |
           aws lambda update-function-code \
             --function-name pii-redaction-api \
-            --image-uri ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/take-home-health-innovation-labs-serving:${{ github.sha }}
+            --image-uri ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ steps.get-latest-ecr-image.outputs.image_sha }}
