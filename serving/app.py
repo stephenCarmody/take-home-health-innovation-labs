@@ -26,7 +26,6 @@ class ModelInfo(BaseModel):
 
 @app.post("/redact", response_model=RedactResponse)
 async def redact_text(request: RedactRequest) -> RedactResponse:
-    """Redact the text"""
     return RedactResponse(redacted_text="pong")
 
 

@@ -16,7 +16,7 @@ jobs:
     with:
       working-directory: serving
       ecr-repository: take-home-health-innovation-labs-serving
-      dockerfile-path: serving/Dockerfile.lambda
+      dockerfile-path: Dockerfile.lambda
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
