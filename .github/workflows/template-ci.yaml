@@ -43,6 +43,8 @@ jobs:
         run: poetry install
       - name: Run tests
         working-directory: ${{ inputs.working-directory }}
+        env:
+          PYTHONPATH: ${{ github.workspace }}/${{ inputs.working-directory }}
         run: just test
 
   build-and-push:
