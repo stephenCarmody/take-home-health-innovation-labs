@@ -1,1 +1,1 @@
-print("Hello World - Training....")
+print("Hello World - Training...")

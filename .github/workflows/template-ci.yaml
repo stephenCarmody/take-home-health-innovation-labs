@@ -72,5 +72,5 @@ jobs:
             --platform linux/amd64 \
             --build-arg GIT_SHA=${{ github.sha }} \
             -t $ECR_REGISTRY/${{ inputs.ecr-repository }}:$IMAGE_TAG \
-            -f Dockerfile.lambda .
+            -f ${{ inputs.dockerfile-path }} .
           docker push $ECR_REGISTRY/${{ inputs.ecr-repository }}:$IMAGE_TAG 
