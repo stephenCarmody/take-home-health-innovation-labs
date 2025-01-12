@@ -18,4 +18,5 @@ def test_info_endpoint():
         "model_name": "bert-base-NER",
         "version": "0.1.0",
         "training_date": "2024-03-19",
+        "git_sha": "unknown",
     }
