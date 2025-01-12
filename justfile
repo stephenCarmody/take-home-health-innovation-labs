@@ -27,19 +27,22 @@ test-training:
     poetry run pytest training/tests/ -v
 
 docker-build-training:
-    docker build -t training:$(git rev-parse --short HEAD) -t training:latest -f training/Dockerfile .
+    docker build -t training-$(git rev-parse --short HEAD) -t training-latest -f training/Dockerfile .
 
 docker-train:
     docker run training:latest
 
 docker-build-serving:
-    docker build -t serving:$(git rev-parse --short HEAD) -t serving:latest -f serving/Dockerfile .
+    docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f serving/Dockerfile .
 
 docker-build-serving-lambda:
-    docker build -t serving-lambda:$(git rev-parse --short HEAD) -t serving-lambda:latest -f serving/Dockerfile.lambda .
-
+    docker build --platform linux/amd64 \
+        --build-arg GIT_SHA=$(git rev-parse HEAD) \
+        -t serving-lambda-$(git rev-parse --short HEAD) \
+        -t serving-lambda-latest \
+        -f serving/Dockerfile.lambda .
 docker-serve:
-    docker run -p 8000:8000 serving:latest
+    docker run -p 8000:8000 serving-latest
 
 ci-run:
     just lint-check
@@ -50,5 +53,18 @@ ecr-login:
     aws ecr get-login-password --region {{AWS_REGION}} | docker login --username AWS --password-stdin {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com
 
 ecr-push-serving:
-    docker tag serving:latest {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving
-    docker push {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving
+    docker tag serving-lambda-latest {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
+    docker push {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
+
+terraform-apply:
+    cd infrastructure && terraform apply -auto-approve
+
+lambda-deploy:
+    aws lambda update-function-code \
+        --function-name pii-redaction-api \
+        --image-uri {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
+
+lambda-build-and-deploy:
+    just docker-build-serving-lambda
+    just ecr-push-serving
+    just lambda-deploy

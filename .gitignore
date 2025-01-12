@@ -14,9 +14,9 @@ __pycache__/
 # logs
 *.log
 
-# instructions
+# misc
 instructions.md
-
+ToDo.md
 # env
 .env
 

@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from mangum import Mangum
 from pydantic import BaseModel
+import os
 
 app = FastAPI(title="PII Redaction API")
+
+GIT_SHA = os.getenv("GIT_SHA", "unknown")
 
 
 class RedactRequest(BaseModel):
@@ -17,6 +20,7 @@ class ModelInfo(BaseModel):
     model_name: str
     version: str
     training_date: str
+    git_sha: str
 
 
 @app.post("/redact", response_model=RedactResponse)
@@ -30,6 +34,7 @@ async def get_model_info() -> ModelInfo:
         model_name="bert-base-NER",
         version="0.1.0",
         training_date="2024-03-19",
+        git_sha=GIT_SHA,
     )
 
 
