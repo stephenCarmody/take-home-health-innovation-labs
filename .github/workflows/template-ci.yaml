@@ -1,4 +1,4 @@
-name: Python CI Template
+name: CI Template
 
 on:
   workflow_call:
