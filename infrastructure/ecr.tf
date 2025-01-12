@@ -1,39 +1,33 @@
-resource "aws_ecr_repository" "take_home_health_innovation_labs" {
-  name = "take-home-health-innovation-labs"
+resource "aws_ecr_repository" "take_home_health_innovation_labs_serving" {
+  name = "take-home-health-innovation-labs-serving"
 }
 
-resource "aws_ecr_lifecycle_policy" "take_home_health_innovation_labs_policy" {
-  repository = aws_ecr_repository.take_home_health_innovation_labs.name
+resource "aws_ecr_repository" "take_home_health_innovation_labs_training" {
+  name = "take-home-health-innovation-labs-training"
+}
 
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Keep last 3 serving images"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["serving"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 3
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 2
-        description  = "Keep last 3 training images"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["training"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 3
-        }
-        action = {
-          type = "expire"
-        }
-      }
-    ]
-  })
+data "aws_ecr_lifecycle_policy_document" "keep_last_3" {
+  rule {
+    priority = 1
+    description = "Keep last 3 images"
+    selection {
+      tag_status = "any"
+      count_type = "imageCountMoreThan"
+      count_number = 3
+    }
+    action {
+      type = "expire"
+    }
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "serving_policy" {
+  repository = aws_ecr_repository.take_home_health_innovation_labs_serving.name
+  policy     = data.aws_ecr_lifecycle_policy_document.keep_last_3.json
+}
+
+resource "aws_ecr_lifecycle_policy" "training_policy" {
+  repository = aws_ecr_repository.take_home_health_innovation_labs_training.name
+  policy     = data.aws_ecr_lifecycle_policy_document.keep_last_3.json
 }
 

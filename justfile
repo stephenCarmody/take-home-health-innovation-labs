@@ -1,60 +1,50 @@
 export PYTHONPATH := "."
 export AWS_REGION := "eu-west-1"
 export AWS_ACCOUNT_ID := "031421732210"
-export ECR_REPO_NAME := "take-home-health-innovation-labs"
+export ECR_SERVING_REPO_NAME := "take-home-health-innovation-labs-serving"
 
+# Training commands
 train:
-    poetry run python training/training.py
+    just training/train
 
 serve:
-    poetry run python serving/app.py
+    just serving/serve
 
+
+# Lint commands
 lint-check:
-    poetry run isort --check-only --diff serving/ training/
-    poetry run black --check --diff serving/ training/
+    just serving/lint-check
+    just training/lint-check
 
 lint-fix:
-    poetry run isort serving/ training/
-    poetry run black serving/ training/
+    just serving/lint-fix
+    just training/lint-fix
 
+# Test commands
 test:
-    poetry run pytest serving/tests/ training/tests/ -v
+    just serving/test
+    just training/test
 
-test-serving:
-    poetry run pytest serving/tests/ -v
+# Docker commands
+docker-build-all:
+    just serving/docker-build
+    just training/docker-build
 
-test-training:
-    poetry run pytest training/tests/ -v
-
-docker-build-training:
-    docker build -t training-$(git rev-parse --short HEAD) -t training-latest -f training/Dockerfile .
-
-docker-train:
-    docker run training:latest
-
-docker-build-serving:
-    docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f serving/Dockerfile .
-
-docker-build-serving-lambda:
-    docker build --platform linux/amd64 \
-        --build-arg GIT_SHA=$(git rev-parse HEAD) \
-        -t serving-lambda-$(git rev-parse --short HEAD) \
-        -t serving-lambda-latest \
-        -f serving/Dockerfile.lambda .
-docker-serve:
-    docker run -p 8000:8000 serving-latest
-
+# CI/CD commands
 ci-run:
     just lint-check
     just test
 
-
+# AWS/Infrastructure commands
 ecr-login:
     aws ecr get-login-password --region {{AWS_REGION}} | docker login --username AWS --password-stdin {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com
 
 ecr-push-serving:
-    docker tag serving-lambda-latest {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
-    docker push {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
+    docker tag serving-lambda-latest {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_SERVING_REPO_NAME}}:serving-lambda-latest
+    docker push {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_SERVING_REPO_NAME}}:serving-lambda-latest
+
+terraform-plan:
+    cd infrastructure && terraform plan
 
 terraform-apply:
     cd infrastructure && terraform apply -auto-approve
@@ -62,9 +52,9 @@ terraform-apply:
 lambda-deploy:
     aws lambda update-function-code \
         --function-name pii-redaction-api \
-        --image-uri {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_REPO_NAME}}:serving-lambda-latest
+        --image-uri {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_SERVING_REPO_NAME}}:serving-lambda-latest
 
 lambda-build-and-deploy:
-    just docker-build-serving-lambda
+    just serving/docker-build-lambda
     just ecr-push-serving
     just lambda-deploy

@@ -1,0 +1,18 @@
+lint-check:
+    poetry run isort . --check-only --diff
+    poetry run black --check --diff .
+
+lint-fix:
+    poetry run isort . && poetry run black .
+
+test:
+    poetry run pytest tests/ -v
+
+docker-build:
+    docker build -t training-$(git rev-parse --short HEAD) -t training-latest -f Dockerfile ..
+
+train:
+    poetry run python training.py
+
+docker-train:
+    docker run training:latest 

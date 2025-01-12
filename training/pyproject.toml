@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "take-home-health-innovation-labs-training"
+version = "0.1.0"
+description = "Training pipeline for PII redaction model"
+authors = ["stephenCarmody <stephen.m.carmody@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.3"
+numpy = "^2.2.1"
+scikit-learn = "^1.6.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 

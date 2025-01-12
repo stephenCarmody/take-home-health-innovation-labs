@@ -9,14 +9,14 @@ ENV GIT_SHA=$GIT_SHA
 RUN curl -sSL https://install.python-poetry.org | python3 - --version ${poetry_version}
 ENV PATH="/root/.local/bin/:$PATH"
 
-WORKDIR /usr/src/serving
+WORKDIR /usr/src/app
 
-COPY serving/ ./
-COPY pyproject.toml ./
-COPY poetry.lock ./
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --no-dev --no-interaction
+
+COPY ./ ./
 
 EXPOSE 8000
 

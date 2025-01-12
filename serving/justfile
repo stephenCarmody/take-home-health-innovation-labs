@@ -1,0 +1,25 @@
+lint-check:
+    poetry run isort . --check-only --diff
+    poetry run black --check --diff .
+
+lint-fix:
+    poetry run isort . && poetry run black .
+
+test:
+    poetry run pytest tests/ -v
+
+docker-build:
+    docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f Dockerfile ..
+
+docker-build-lambda:
+    docker build --platform linux/amd64 \
+        --build-arg GIT_SHA=$(git rev-parse HEAD) \
+        -t serving-lambda-$(git rev-parse --short HEAD) \
+        -t serving-lambda-latest \
+        -f Dockerfile.lambda .
+
+serve:
+    poetry run python app.py
+
+docker-serve:
+    docker run -p 8000:8000 serving-latest 

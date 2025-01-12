@@ -27,7 +27,7 @@ resource "aws_iam_role_policy" "lambda_ecr" {
           "ecr:BatchGetImage",
           "ecr:BatchCheckLayerAvailability"
         ]
-        Resource = [aws_ecr_repository.take_home_health_innovation_labs.arn]
+        Resource = [aws_ecr_repository.take_home_health_innovation_labs_serving.arn]
       }
     ]
   })

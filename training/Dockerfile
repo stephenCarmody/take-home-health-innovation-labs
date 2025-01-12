@@ -7,15 +7,13 @@ ARG poetry_version=1.8.4
 RUN curl -sSL https://install.python-poetry.org | python3 - --version ${poetry_version}
 ENV PATH="/root/.local/bin/:$PATH"
 
-WORKDIR /usr/src/training 
-ENV PYTHONPATH=/usr/src/
+WORKDIR /usr/src/app
 
-COPY pyproject.toml /usr/src/training/
-COPY poetry.lock /usr/src/training/
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --no-dev --no-interaction
 
-COPY . /usr/src/training/
+COPY ./ ./
 
 CMD ["python", "training.py"]

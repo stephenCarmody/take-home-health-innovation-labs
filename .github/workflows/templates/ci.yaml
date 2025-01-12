@@ -1,16 +1,27 @@
-name: Continuous Integration
+name: Python CI Template
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+      ecr-repository:
+        required: true
+        type: string
+      dockerfile-path:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 env:
   POETRY_VERSION: 1.8.4
   PYTHON_VERSION: 3.11
   AWS_REGION: eu-west-1
-  ECR_REPOSITORY: take-home-health-innovation-labs
 
 jobs:
   tests:
@@ -28,11 +39,10 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
           poetry config virtualenvs.create false
       - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
         run: poetry install
-      - name: Run linting
-        run: just lint-check
       - name: Run tests
-        run: just test
+        run: just test-${{ inputs.working-directory }}
 
   build-and-push:
     if: github.ref == 'refs/heads/main'
@@ -40,19 +50,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push serving image
+      - name: Build and push image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
@@ -60,14 +67,6 @@ jobs:
           docker build \
             --platform linux/amd64 \
             --build-arg GIT_SHA=${{ github.sha }} \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:serving-lambda-$IMAGE_TAG \
-            -f serving/Dockerfile.lambda .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:serving-lambda-$IMAGE_TAG
-
-      - name: Build and push training image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:training-$IMAGE_TAG -f training/Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:training-$IMAGE_TAG
+            -t $ECR_REGISTRY/${{ inputs.ecr-repository }}:$IMAGE_TAG \
+            -f ${{ inputs.dockerfile-path }} .
+          docker push $ECR_REGISTRY/${{ inputs.ecr-repository }}:$IMAGE_TAG 
