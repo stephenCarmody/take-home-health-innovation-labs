@@ -42,7 +42,8 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: poetry install
       - name: Run tests
-        run: just test-${{ inputs.working-directory }}
+        working-directory: ${{ inputs.working-directory }}
+        run: just test
 
   build-and-push:
     if: github.ref == 'refs/heads/main'
