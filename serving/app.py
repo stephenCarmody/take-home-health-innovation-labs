@@ -1,7 +1,8 @@
+import os
+
 from fastapi import FastAPI
 from mangum import Mangum
 from pydantic import BaseModel
-import os
 
 app = FastAPI(title="PII Redaction API")
 
