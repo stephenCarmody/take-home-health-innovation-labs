@@ -9,31 +9,61 @@ on:
 env:
   POETRY_VERSION: 1.8.4
   PYTHON_VERSION: 3.11
+  AWS_REGION: eu-west-1
+  ECR_REPOSITORY: take-home-health-innovation-labs
 
 jobs:
-  run-ci:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
       - name: Install just
         uses: taiki-e/install-action@just
-
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
           poetry config virtualenvs.create false
-
       - name: Install dependencies
         run: poetry install
-
       - name: Run linting
         run: just lint-check
-
       - name: Run tests
         run: just test
+
+  build-and-push:
+    if: github.ref == 'refs/heads/main'
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push serving image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:serving-$IMAGE_TAG -f serving/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:serving-$IMAGE_TAG
+
+      - name: Build and push training image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:training-$IMAGE_TAG -f training/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:training-$IMAGE_TAG

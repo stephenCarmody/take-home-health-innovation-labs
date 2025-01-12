@@ -37,3 +37,7 @@ docker-build-serving-lambda:
 
 docker-serve:
     docker run -p 8000:8000 serving-app
+
+ci-run:
+    just lint-check
+    just test
