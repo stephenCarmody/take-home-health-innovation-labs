@@ -1,3 +1,5 @@
+export PYTHONPATH := "."
+
 lint-check:
     poetry run isort . --check-only --diff
     poetry run black --check --diff .
