@@ -1,3 +1,5 @@
+export PYTHONPATH := "."
+
 lint-check:
     poetry run isort . --check-only --diff
     poetry run black --check --diff .
@@ -12,7 +14,7 @@ docker-build:
     docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f Dockerfile ..
 
 docker-build-lambda:
-    docker build --platform linux/amd64 \
+    docker build --platform linux/arm64 \
         --build-arg GIT_SHA=$(git rev-parse HEAD) \
         -t serving-lambda-$(git rev-parse --short HEAD) \
         -t serving-lambda-latest \
@@ -23,3 +25,12 @@ serve:
 
 docker-serve:
     docker run -p 8000:8000 serving-latest 
+
+docker-serve-lambda:
+    docker run -p 9000:8080 serving-lambda-latest
+
+lambda-local-test-info:
+    curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @test_lambda_payloads/info.json | jq
+
+lambda-local-test-redact:
+    curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @test_lambda_payloads/redact.json | jq
