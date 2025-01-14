@@ -43,11 +43,14 @@ ecr-push-serving:
     docker tag serving-lambda-latest {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_SERVING_REPO_NAME}}:serving-lambda-latest
     docker push {{AWS_ACCOUNT_ID}}.dkr.ecr.{{AWS_REGION}}.amazonaws.com/{{ECR_SERVING_REPO_NAME}}:serving-lambda-latest
 
-terraform-plan:
+tf-plan:
     cd infrastructure && terraform plan
 
-terraform-apply:
+tf-apply:
     cd infrastructure && terraform apply -auto-approve
+
+tf-get-api-endpoint:
+    cd infrastructure && terraform output -json
 
 lambda-deploy:
     aws lambda update-function-code \
