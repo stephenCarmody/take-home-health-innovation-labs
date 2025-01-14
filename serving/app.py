@@ -1,12 +1,20 @@
+import logging
 import os
 
 from fastapi import FastAPI
 from mangum import Mangum
 from pydantic import BaseModel
 
-app = FastAPI(title="PII Redaction API")
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 GIT_SHA = os.getenv("GIT_SHA", "unknown")
+
+app = FastAPI(
+    title="PII Redaction API",
+    root_path="/prod"
+)
 
 
 class RedactRequest(BaseModel):
@@ -26,7 +34,7 @@ class ModelInfo(BaseModel):
 
 @app.post("/redact", response_model=RedactResponse)
 async def redact_text(request: RedactRequest) -> RedactResponse:
-    return RedactResponse(redacted_text="pong")
+    return RedactResponse(redacted_text="Fake Response")
 
 
 @app.get("/info", response_model=ModelInfo)
@@ -39,7 +47,7 @@ async def get_model_info() -> ModelInfo:
     )
 
 
-handler = Mangum(app)
+handler = Mangum(app, api_gateway_base_path="/prod")
 
 if __name__ == "__main__":
     import uvicorn
