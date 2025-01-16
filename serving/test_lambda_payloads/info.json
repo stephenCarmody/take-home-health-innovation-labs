@@ -1,0 +1,24 @@
+{
+    "version": "2.0",
+    "routeKey": "GET /info",
+    "rawPath": "/info",
+    "rawQueryString": "",
+    "headers": {
+      "accept": "application/json",
+      "content-type": "application/json"
+    },
+    "requestContext": {
+      "http": {
+        "method": "GET",
+        "path": "/info",
+        "protocol": "HTTP/1.1",
+        "sourceIp": "127.0.0.1",
+        "userAgent": "custom-user-agent"
+      },
+      "requestId": "test-request-id",
+      "stage": "$default",
+      "time": "12/Mar/2024:19:03:58 +0000",
+      "timeEpoch": 1710266638390
+    },
+    "isBase64Encoded": false
+  }

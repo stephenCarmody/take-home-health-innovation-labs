@@ -6,10 +6,12 @@ authors = ["stephenCarmody <stephen.m.carmody@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11, <3.13"
 pandas = "^2.2.3"
 numpy = "^2.2.1"
 scikit-learn = "^1.6.1"
+boto3 = "^1.35.97"
+pydantic-settings = "^2.7.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

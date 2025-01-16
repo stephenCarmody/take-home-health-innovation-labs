@@ -1,4 +1,4 @@
-export PYTHONPATH := "."
+export PYTHONPATH := ".."
 
 lint-check:
     poetry run isort . --check-only --diff
@@ -13,8 +13,8 @@ test:
 docker-build:
     docker build -t training-$(git rev-parse --short HEAD) -t training-latest -f Dockerfile ..
 
-train:
-    poetry run python training.py
+train *args:
+    poetry run python training.py {{args}}
 
 docker-train:
     docker run training:latest 

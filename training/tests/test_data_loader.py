@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from data_loader import load_data
+from training.data_loader import load_data
 
 
 @pytest.fixture
