@@ -3,12 +3,18 @@ export AWS_REGION := "eu-west-1"
 export AWS_ACCOUNT_ID := "031421732210"
 export ECR_SERVING_REPO_NAME := "take-home-health-innovation-labs-serving"
 
+init:
+    cd utils && poetry install
+    cd serving && poetry install
+    cd training && poetry install
+    cd infrastructure && terraform init
 
 # Training commands
 train:
     just training/train
 
 serve:
+    cp -r training/model serving/model
     just serving/serve
 
 
