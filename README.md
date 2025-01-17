@@ -91,3 +91,8 @@ just serving/test-redact-local
 just deploy
 ```
 
+# Further Testing 
+
+The same process of building and testing can be done using docker, and a labmda compatible container can be built and run locally. 
+
+In the serving/justfile there are commands for testing the endpoints locally with a vanilla docker container, and a lambda compatible container. 
