@@ -11,12 +11,14 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /usr/src/app
 
-COPY pyproject.toml poetry.lock ./
+COPY ../utils /usr/src/utils/
+
+COPY serving/pyproject.toml serving/poetry.lock ./
 
 RUN poetry config virtualenvs.create false && \
-    poetry install --no-root --no-dev --no-interaction
+    poetry install --no-root --only main --no-interaction
 
-COPY ./ ./
+COPY serving/ ./
 
 EXPOSE 8000
 

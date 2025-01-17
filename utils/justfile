@@ -9,12 +9,3 @@ lint-fix:
 
 test:
     poetry run pytest tests/ -v
-
-docker-build:
-    docker build -t training-$(git rev-parse --short HEAD) -t training-latest -f Dockerfile ..
-
-train *args:
-    poetry run python training.py {{args}}
-
-docker-train:
-    docker run training:latest 

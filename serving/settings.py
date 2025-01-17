@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     model_s3_prefix: str = "models/prod/"
 
     # Model
-    model_id: str = os.getenv("MODEL_ID", "20250116-165036-60774299")
+    model_id: str = os.getenv("MODEL_ID", "20250117-121915-eeba0222")
 
     # Paths
     local_model_dir: str = "model"

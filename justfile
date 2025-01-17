@@ -16,17 +16,18 @@ serve:
 lint-check:
     just serving/lint-check
     just training/lint-check
+    just utils/lint-check
 
 lint-fix:
     just serving/lint-fix
     just training/lint-fix
-
+    just utils/lint-fix
 
 # Test commands
 test:
     just serving/test
     just training/test
-
+    just utils/test
 
 # Docker commands
 docker-build-all:

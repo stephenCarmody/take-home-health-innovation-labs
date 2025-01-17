@@ -3,11 +3,11 @@ import os
 
 from fastapi import FastAPI
 from mangum import Mangum
+from ml_utils.model_repository import LocalModelRepository
+from ml_utils.model_wrapper import MLModel
 from pydantic import BaseModel
 
-from serving.settings import settings
-from utils.model_repository import LocalModelRepository
-from utils.model_wrapper import MLModel
+from settings import settings
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

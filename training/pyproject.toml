@@ -12,6 +12,8 @@ numpy = "^2.2.1"
 scikit-learn = "^1.6.1"
 boto3 = "^1.35.97"
 pydantic-settings = "^2.7.1"
+utils = { path = "../utils", develop = true }
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

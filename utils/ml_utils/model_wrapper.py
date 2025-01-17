@@ -1,7 +1,7 @@
-
-import numpy as np
-import joblib
 from pathlib import Path
+
+import joblib
+
 
 class MLModel:
     def __init__(self, estimator, tokenizer, input_features):
@@ -32,7 +32,7 @@ class MLModel:
         Predict which tokens are named entities
         """
         return self.prediction_postprocess(self._predict(text))
-    
+
     def _predict(self, text: str) -> str:
         """
         Predict which tokens are named entities
@@ -54,6 +54,6 @@ class MLModel:
         artifacts = {
             "estimator": self.estimator,
             "tokenizer": self.tokenizer,
-            "input_features": self.input_features
+            "input_features": self.input_features,
         }
         joblib.dump(artifacts, path)

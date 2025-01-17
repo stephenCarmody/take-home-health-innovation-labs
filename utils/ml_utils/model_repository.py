@@ -1,13 +1,14 @@
-from typing import Dict, Any, List, Tuple
-from datetime import UTC, datetime
+import io
+import json
 import os
 import uuid
-import joblib
-import boto3
-import json
-import io
+from datetime import UTC, datetime
+from typing import Any, Dict, List, Tuple
 
-from utils.interfaces import M, T
+import boto3
+import joblib
+
+from ml_utils.interfaces import M, T
 
 
 class S3ModelRepository:
@@ -15,14 +16,16 @@ class S3ModelRepository:
         self.bucket_name = bucket_name
         self.s3 = boto3.client("s3")
 
-    def persist_model(self, model: M, tokenizer: T, input_features: List[str], run_id: str) -> None:
+    def persist_model(
+        self, model: M, tokenizer: T, input_features: List[str], run_id: str
+    ) -> None:
         artifacts = _create_model_artifacts(model, tokenizer, input_features)
         buffer = io.BytesIO()
         joblib.dump(artifacts, buffer)
         self.s3.put_object(
             Bucket=self.bucket_name,
             Key=f"models/prod/{run_id}/model.joblib",
-            Body=buffer.getvalue()
+            Body=buffer.getvalue(),
         )
         metadata = _create_model_metadata(run_id)
         self.s3.put_object(
@@ -30,16 +33,16 @@ class S3ModelRepository:
             Key=f"models/prod/{run_id}/metadata.json",
             Body=json.dumps(metadata),
         )
-    
+
     def load_model(self, run_id: str) -> Tuple[M, T]:
         buffer = io.BytesIO()
         self.s3.get_object(
             Bucket=self.bucket_name,
             Key=f"models/prod/{run_id}/model.joblib",
-            Body=buffer
+            Body=buffer,
         )
         return joblib.load(buffer)
-    
+
     def load_metadata(self, run_id: str) -> Dict[str, str]:
         response = self.s3.get_object(
             Bucket=self.bucket_name,
@@ -49,7 +52,9 @@ class S3ModelRepository:
 
 
 class LocalModelRepository:
-    def persist_model(self, model: M, tokenizer: T, input_features: List[str], run_id: str) -> None:
+    def persist_model(
+        self, model: M, tokenizer: T, input_features: List[str], run_id: str
+    ) -> None:
         artifacts = _create_model_artifacts(model, tokenizer, input_features)
         os.makedirs(f"model/{run_id}", exist_ok=True)
         joblib.dump(artifacts, f"model/{run_id}/model.joblib")
@@ -61,7 +66,7 @@ class LocalModelRepository:
     def load_model(self, run_id: str) -> Tuple[M, T]:
         artifacts = joblib.load(f"model/{run_id}/model.joblib")
         return artifacts
-    
+
     def load_metadata(self, run_id: str) -> Dict[str, str]:
         with open(f"model/{run_id}/metadata.json", "r") as f:
             return json.load(f)

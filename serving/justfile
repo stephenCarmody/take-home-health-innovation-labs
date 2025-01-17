@@ -1,4 +1,4 @@
-export PYTHONPATH := ".."
+export PYTHONPATH := "."
 
 lint-check:
     poetry run isort . --check-only --diff
@@ -11,7 +11,7 @@ test:
     poetry run pytest tests/ -v
 
 docker-build:
-    docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f Dockerfile .
+    cd .. && docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f serving/Dockerfile .
 
 docker-build-lambda:
     docker build --platform linux/arm64 \
@@ -21,7 +21,7 @@ docker-build-lambda:
         -f Dockerfile.lambda .
 
 serve:
-    PYTHONPATH=.. poetry run python app.py --reload
+    poetry run python app.py --reload
 
 docker-serve:
     docker run -p 8000:8000 serving-latest 

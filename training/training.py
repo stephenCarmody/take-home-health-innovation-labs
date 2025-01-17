@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from utils.fake_models import FakePIIModel, FakeTokenizer
-from utils.model_repository import (
+from ml_utils.fake_models import FakePIIModel, FakeTokenizer
+from ml_utils.model_repository import (
     LocalModelRepository,
     S3ModelRepository,
     generate_run_id,

@@ -5,7 +5,7 @@ os.environ["LAMBDA_TASK_ROOT"] = "."
 import pytest
 from fastapi.testclient import TestClient
 
-from serving.app import app
+from app import app
 
 
 class FakeModel:
@@ -27,7 +27,7 @@ def mock_env():
 @pytest.fixture(autouse=True)
 def mock_model(monkeypatch):
     fake_model = FakeModel()
-    monkeypatch.setattr("serving.app.model", fake_model)
+    monkeypatch.setattr("app.model", fake_model)
 
     # Mock metadata for info endpoint
     fake_metadata = {
@@ -36,7 +36,7 @@ def mock_model(monkeypatch):
         "training_time": "2024-03-19",
         "user": "test_user",
     }
-    monkeypatch.setattr("serving.app.metadata", fake_metadata)
+    monkeypatch.setattr("app.metadata", fake_metadata)
     yield
 
 
