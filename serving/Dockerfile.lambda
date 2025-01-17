@@ -1,13 +1,16 @@
 FROM public.ecr.aws/lambda/python:3.11-arm64
 
-COPY pyproject.toml poetry.lock ${LAMBDA_TASK_ROOT}/
+# Copy utils package first
+COPY utils /var/utils
+
+# Copy serving package files
+COPY serving/pyproject.toml serving/poetry.lock ./
 
 RUN pip install poetry && \
-    cd ${LAMBDA_TASK_ROOT} && \
     poetry config virtualenvs.create false && \
     poetry install --only main --no-interaction --no-ansi --no-root
 
-COPY ./ ${LAMBDA_TASK_ROOT}/
+COPY serving/ ${LAMBDA_TASK_ROOT}/
 
 ARG GIT_SHA
 ENV GIT_SHA=${GIT_SHA}

@@ -14,11 +14,11 @@ docker-build:
     cd .. && docker build -t serving-$(git rev-parse --short HEAD) -t serving-latest -f serving/Dockerfile .
 
 docker-build-lambda:
-    docker build --platform linux/arm64 \
+    cd .. && docker build --platform linux/arm64 \
         --build-arg GIT_SHA=$(git rev-parse HEAD) \
         -t serving-lambda-$(git rev-parse --short HEAD) \
         -t serving-lambda-latest \
-        -f Dockerfile.lambda .
+        -f serving/Dockerfile.lambda .
 
 serve:
     poetry run python app.py --reload
